@@ -4,6 +4,7 @@
 
     var MemoryStorage = {};
     var ID = 1;
+    var FastStorage = {};
 
     /**
      * Creates a new client side storage object and will create an empty
@@ -18,15 +19,23 @@
 
         this._dbName = name;
 
-        if (!MemoryStorage[name]) {
+        // if (!MemoryStorage[name]) {
+        //     var data = {
+        //         todos: []
+        //     };
+
+        //     MemoryStorage[name] = JSON.stringify(data);
+        // }
+
+        if (!FastStorage[name]) {
             var data = {
                 todos: []
             };
 
-            MemoryStorage[name] = JSON.stringify(data);
+            FastStorage = data;
         }
 
-        callback.call(this, JSON.parse(MemoryStorage[name]));
+        callback.call(this, FastStorage);
     }
 
     /**
@@ -47,7 +56,8 @@
             return;
         }
 
-        var todos = JSON.parse(MemoryStorage[this._dbName]).todos;
+        // var todos = JSON.parse(MemoryStorage[this._dbName]).todos;
+        var todos = FastStorage.todos;
 
         callback.call(this, todos.filter(function (todo) {
             for (var q in query) {
@@ -66,7 +76,8 @@
      */
     Store.prototype.findAll = function (callback) {
         callback = callback || function () {};
-        callback.call(this, JSON.parse(MemoryStorage[this._dbName]).todos);
+        // callback.call(this, JSON.parse(MemoryStorage[this._dbName]).todos);
+        callback.call(this, FastStorage.todos);
     };
 
     /**
@@ -78,7 +89,8 @@
      * @param {number} id An optional param to enter an ID of an item to update
      */
     Store.prototype.save = function (updateData, callback, id) {
-        var data = JSON.parse(MemoryStorage[this._dbName]);
+        // var data = JSON.parse(MemoryStorage[this._dbName]);
+        var data = FastStorage;
         var todos = data.todos;
 
         callback = callback || function () {};
@@ -94,14 +106,16 @@
                 }
             }
 
-            MemoryStorage[this._dbName] = JSON.stringify(data);
+            // MemoryStorage[this._dbName] = JSON.stringify(data);
+            FastStorage = data;
             callback.call(this, todos);
         } else {
             // Generate an ID
             updateData.id = ID++;
 
             todos.push(updateData);
-            MemoryStorage[this._dbName] = JSON.stringify(data);
+            // MemoryStorage[this._dbName] = JSON.stringify(data);
+            FastStorage = data;
             callback.call(this, [updateData]);
         }
     };
@@ -113,7 +127,8 @@
      * @param {function} callback The callback to fire after saving
      */
     Store.prototype.remove = function (id, callback) {
-        var data = JSON.parse(MemoryStorage[this._dbName]);
+        // var data = JSON.parse(MemoryStorage[this._dbName]);
+        var data = FastStorage;
         var todos = data.todos;
 
         for (var i = 0; i < todos.length; i++) {
@@ -123,7 +138,8 @@
             }
         }
 
-        MemoryStorage[this._dbName] = JSON.stringify(data);
+        // MemoryStorage[this._dbName] = JSON.stringify(data);
+        FastStorage = data;
         callback.call(this, todos);
     };
 
@@ -134,7 +150,8 @@
      */
     Store.prototype.drop = function (callback) {
         var data = {todos: []};
-        MemoryStorage[this._dbName] = JSON.stringify(data);
+        // MemoryStorage[this._dbName] = JSON.stringify(data);
+        FastStorage = data;
         callback.call(this, data.todos);
     };
 
